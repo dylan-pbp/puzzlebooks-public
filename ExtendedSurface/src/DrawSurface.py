@@ -73,15 +73,16 @@ class DrawSurface():
 		self.calling_surface = calling_surface
 		self.context = self.calling_surface.context
 
-		self.x = None
-		self.y = None
-		self.width = None
-		self.height = None
+		#x = None
+		#y = None
+		#width = None
+		#height = None
 
 		self.color = None
 		self.fill = None
 		self.line_cap = None
 		self.line_join = None
+		self.line_width = None
 		self.outline = None
 		self.outline_color = None
 
@@ -91,8 +92,8 @@ class DrawSurface():
 		Draw a dot of a given radius, centered at (x, y).
 
 		Keyword arguments:
-			x (int) -- the x-coordinate.
-			y (int) -- the y-coordinate.
+			x (int/str) -- the x-coordinate.
+			y (int/str) -- the y-coordinate.
 			radius (int) -- the radius of the dot (default 1).
 			color (3- or 4-tuple) -- the RGB(A) color of the dot
 				(default (0, 0, 0) (black)).
@@ -103,24 +104,19 @@ class DrawSurface():
 			outline_color (3- or 4-tuple) -- the RGB(A) color of the
 				dot's outline (default 'color').
 		"""
-		# Draw an ellipse using the dot parameters given
-		#self.ellipse(x-radius, y-radius, radius*2, radius*2, **kwargs)
-
 		# Grab the essential attributes
-		self.x = x
-		self.y = y
-		self.width = radius * 2
-		self.height = radius * 2
+		width = radius * 2
+		height = radius * 2
 
 		# Determine the x and y coordinates based on other attributes.
 		# NOTE: This sets the attributes based on the top-left corner of a
 		# bounding box containing the dot.
-		self._determine_xy()
+		x, y, width, height = self._adjust_params(x, y, width, height)
 
 		# Draw the dot by moving to the center and drawing a circle with the
 		# given radius, accounting for the width of the outline.
 		self.context.arc(
-			self.x + self.width/2, self.y + self.height/2,
+			x + width/2, y + height/2,
 			radius - self.outline/2,
 			0, 2 * math.pi
 			)
@@ -146,21 +142,15 @@ class DrawSurface():
 			outline_color (3- or 4-tuple) -- the RGB(A) color of the
 				ellipse's outline (default 'color').
 		"""
-		# Grab the essential attributes
-		self.x = x
-		self.y = y
-		self.width = width
-		self.height = height
-
 		# Determine the x and y coordinates based on other attributes
-		self._determine_xy()
+		x, y, width, height = self._adjust_params(x, y, width, height)
 
 		# Draw an ellipse by scaling the Context by the width and height,
 		# and drawing a unit circle
 		self.context.save()
 		self.context.translate(
-			self.x + self.width / 2, self.y + self.height / 2)
-		self.context.scale(self.width / 2, self.height / 2)
+			x + width / 2, y + height / 2)
+		self.context.scale(width / 2, height / 2)
 		self.context.arc(0, 0, 1, 0, 2 * math.pi)
 		self.context.restore()
 
@@ -169,20 +159,30 @@ class DrawSurface():
 		Draw a line connecting two points at given sets of coordinates.
 
 		Keyword arguments:
-			x1 (int) -- the x-coordinate of the first point.
-			y1 (int) -- the y-coordinate of the first point.
-			x2 (int) -- the x-coordinate of the second point.
-			y2 (int) -- the y-coordinate of the second point.
+			x1 (int/str) -- the x-coordinate of the first point.
+			y1 (int/str) -- the y-coordinate of the first point.
+			x2 (int/str) -- the x-coordinate of the second point.
+			y2 (int/str) -- the y-coordinate of the second point.
 			color (3- or 4-tuple) -- the RGB(A) color of the polygon
 				(default (0, 0, 0) (black)).
 			line_cap (cairo.LINE_CAP) -- the cap at the end of the line
 				(default cairo.LINE_CAP_SQUARE).
+			line_width (int) -- the thickness of the line, in pixels.
 		"""
 		# Save the Context so we can restore it after the line is drawn
 		self.context.save()
 
 		# Initialize the shape's attributes
 		self.init_attributes(**kwargs)
+
+		# Grab the starting point
+		width = 0
+		height = 0
+		self.outline = 0
+
+		# Parse the x and y coordinates, if need be
+		x1, y1 = self._adjust_params(x1, y1, width, height)[0:2]
+		x2, y2 = self._adjust_params(x2, y2, width, height)[0:2]
 
 		# Draw a line
 		self.context.move_to(x1, y1)
@@ -211,6 +211,12 @@ class DrawSurface():
 			outline_color (3- or 4-tuple) -- the RGB(A) color of the
 				polygon's outline (default 'color').
 		"""
+		# Parse each set of points
+		self.outline = 0
+		for i, (x, y) in enumerate(points):
+			points[i][0] = self._parse_x(x, 0)
+			points[i][1] = self._parse_y(y, 0)
+
 		# Trace a line for each edge of the shape.
 		self.context.move_to(points[0][0], points[0][1])
 		for x, y in points[1:]:
@@ -224,8 +230,8 @@ class DrawSurface():
 		top-left corner of the rectangle.
 
 		Keyword arguments:
-			x (int) -- the x-coordinate.
-			y (int) -- the y-coordinate.
+			x (int/str) -- the x-coordinate.
+			y (int/str) -- the y-coordinate.
 			width (int) -- the width of the rectangle.
 			height (int) -- the height of the rectangle.
 			color (3- or 4-tuple) -- the RGB(A) color of the rectangle
@@ -237,17 +243,11 @@ class DrawSurface():
 			outline_color (3- or 4-tuple) -- the RGB(A) color of the
 				rectangle's outline (default 'color').
 		"""
-		# Grab the essential attributes
-		self.x = x
-		self.y = y
-		self.width = width
-		self.height = height
-
 		# Determine the x and y coordinates based on other attributes
-		self._determine_xy()
+		x, y, width, height = self._adjust_params(x, y, width, height)
 
 		# Draw the rectangle
-		self.context.rectangle(self.x, self.y, self.width, self.height)
+		self.context.rectangle(x, y, width, height)
 
 	@polygon_wrapper
 	def rounded_rectangle(self, x, y, width, height, radius, **kwargs):
@@ -257,8 +257,8 @@ class DrawSurface():
 		contain the rounded rectangle.
 
 		Keyword arguments:
-			x (int) -- the x-coordinate.
-			y (int) -- the y-coordinate.
+			x (int/str) -- the x-coordinate.
+			y (int/str) -- the y-coordinate.
 			width (int) -- the width of the rounded rectangle.
 			height (int) -- the height of the rounded rectangle.
 			radius (int) -- the radius of the rectangle's corners.
@@ -271,14 +271,8 @@ class DrawSurface():
 			outline_color (3- or 4-tuple) -- the RGB(A) color of the
 				rounded rectangle's outline (default 'color').
 		"""
-		# Grab the essential attributes
-		self.x = x
-		self.y = y
-		self.width = width
-		self.height = height
-
-		# Convert the x and y coordinates, if need be
-		self._determine_xy()
+		# Parse the x and y coordinates, if need be
+		x, y, width, height = self._adjust_params(x, y, width, height)
 
 		# (x, y)-coordinates of the four corners.
 		# The four corners are: bottom-right, bottom-left, top-left, top-right.
@@ -286,10 +280,10 @@ class DrawSurface():
 		# when it draws an arc (starts at the rightmost point of the circle and
 		# moves clockwise).
 		corners = [
-			[self.x + self.width - radius, self.y + self.height - radius],
-			[self.x + radius, self.y + self.height - radius],
-			[self.x + radius, self.y + radius],
-			[self.x + self.width - radius, self.y + radius]
+			[x + width - radius, y + height - radius],
+			[x + radius, y + height - radius],
+			[x + radius, y + radius],
+			[x + width - radius, y + radius]
 			]
 
 		# Draw the four corners
@@ -304,47 +298,27 @@ class DrawSurface():
 		# Draw the path connecting them together
 		self.context.close_path()
 
-	def _determine_xy(self):
+	def _adjust_params(self, x, y, width, height):
 		"""
-		Calculate the x, y, width, and height of the object being drawn,
+		Return the adjusted x, y, width, and height of the object being drawn,
 		based on what's sent in and the size of the outline.
+
+		Keyword arguments:
+			x (int/str) -- the x-coordinate sent in.
+			y (int/str) -- the y-coordinate sent in.
+			width (int) -- the width sent in.
+			height (int) -- the height sent in.
 		"""
-		# Make sure the coordinates are in the correct format
-		if isinstance(self.x, str):
-			assert self.x in ["left", "center", "right"], \
-				(f"parameter 'x' cannot be '{self.x}', must be either a number "
-				 "or one of 'left', 'center', or 'right'")
-		if isinstance(self.y, str):
-			assert self.y in ["top", "center", "bottom"], \
-				(f"parameter 'y' cannot be '{self.y}', must be either a number "
-				 "or one of 'top', 'center', or 'bottom'")
-
 		# Adjust the width and height to account for half the outline
-		# on both sides (so a full outline in total)
-		self.width -= self.outline
-		self.height -= self.outline
+		# on both sides of the polygon (so a full outline in total)
+		width -= self.outline
+		height -= self.outline
 
-		# Set the x-coordinate
-		if self.x == "left":
-			self.x = self.outline/2
-		elif self.x == "center":
-			self.x = (self.calling_surface.get_width() - self.width) / 2
-		elif self.x == "right":
-			self.x = (self.calling_surface.get_width()
-				- (self.width + self.outline/2))
-		else:
-			self.x += self.outline/2
+		x = self._parse_x(x, width)
+		y = self._parse_y(y, height)
 
-		# Set the y-coordinate
-		if self.y == "top":
-			self.y = self.outline/2
-		elif self.y == "center":
-			self.y = (self.calling_surface.get_height() - self.height) / 2
-		elif self.y == "bottom":
-			self.y = (self.calling_surface.get_height()
-				- (self.height + self.outline/2))
-		else:
-			self.y += self.outline/2
+		# Return the adjusted x, y, width, and height
+		return x, y, width, height
 
 	def init_attributes(self, **kwargs):
 		"""
@@ -372,9 +346,62 @@ class DrawSurface():
 		self.line_join = kwargs.get("line_join", cairo.LINE_JOIN_MITER)
 		self.outline = kwargs.get("outline", 1)
 		self.outline_color = kwargs.get("outline_color", self.color)
+		self.outline = kwargs.get("line_width", self.outline)
 
 		# Update the Context based on the attributes sent in
 		self.calling_surface.set_color(self.color)
 		self.context.set_line_cap(self.line_cap)
 		self.context.set_line_join(self.line_join)
 		self.context.set_line_width(self.outline)
+
+	def _parse_x(self, x, width=0):
+		"""
+		Parse the x-coordinate.
+
+		Keyword arguments:
+			x (int/str) -- the x-coordinate to parse.
+			width (int) -- the width of the polygon (default 0).
+		"""
+		# Make sure the coordinate is in the correct format
+		if isinstance(x, str):
+			assert x in ["left", "center", "right"], \
+				(f"parameter 'x' cannot be '{x}', must be either a number "
+				 "or one of 'left', 'center', or 'right'")
+
+		# Parse the x-coordinate, adjusting for any potential outline
+		if x == "left":
+			x = self.outline/2
+		elif x == "center":
+			x = (self.calling_surface.get_width() - width) / 2
+		elif x == "right":
+			x = (self.calling_surface.get_width() - (width + self.outline/2))
+		else:
+			x += self.outline/2
+
+		return x
+
+	def _parse_y(self, y, height=0):
+		"""
+		Parse the y-coordinate.
+
+		Keyword arguments:
+			y (int/str) -- the y-coordinate to parse.
+			height (int) -- the height of the polygon (default 0).
+		"""
+		# Make sure the coordinate is in the correct format
+		if isinstance(y, str):
+			assert y in ["top", "center", "bottom"], \
+				(f"parameter 'y' cannot be '{y}', must be either a number "
+				 "or one of 'top', 'center', or 'bottom'")
+
+		# Parse the y-coordinate, adjusting for any potential outline
+		if y == "top":
+			y = self.outline/2
+		elif y == "center":
+			y = (self.calling_surface.get_height() - height) / 2
+		elif y == "bottom":
+			y = (self.calling_surface.get_height() - (height + self.outline/2))
+		else:
+			y += self.outline/2
+
+		return y
