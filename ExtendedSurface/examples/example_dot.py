@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Examples of various ways to draw dots."""
+"""Examples of various ways to draw a dot."""
 
 from src.ExtendedSurface import ExtendedSurface
 
@@ -33,5 +33,5 @@ es.draw.dot(
 es.gridlines()
 
 # Write our drawing to a PNG file
-es.write_to_png("example_dots.png")
+es.write_to_png("example_dot.png")
 
