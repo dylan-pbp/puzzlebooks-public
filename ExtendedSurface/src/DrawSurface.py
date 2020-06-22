@@ -212,10 +212,9 @@ class DrawSurface():
 				polygon's outline (default 'color').
 		"""
 		# Parse each set of points
-		self.outline = 0
+		#self.outline = 0
 		for i, (x, y) in enumerate(points):
-			points[i][0] = self._parse_x(x, 0)
-			points[i][1] = self._parse_y(y, 0)
+			points[i] = (self._parse_x(x, 0), self._parse_y(y, 0))
 
 		# Trace a line for each edge of the shape.
 		self.context.move_to(points[0][0], points[0][1])
