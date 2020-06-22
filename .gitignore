@@ -1,0 +1,3 @@
+# Pycache and PyObject file
+*.pyc
+*.pyo
