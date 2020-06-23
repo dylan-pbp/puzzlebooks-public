@@ -62,12 +62,20 @@ class ExtendedSurface():
 		# Paint it onto the cropped surface
 		cropped_context.paint()
 
+		# Delete our old class attributes
+		del self.surface
+		del self.context
+		del self.text
+		del self.draw
+
 		# Set the cropped surface as our surface
 		self.surface = cropped_surface
 
-		# With our surface pointing at a new object,
-		# we need to redefine our Context
+		# With the new ImageSurface object, we need to repoint our other
+		# attributes at it
 		self.context = cairo.Context(self.surface)
+		self.text = TextSurface(self)
+		self.draw = DrawSurface(self)
 
 		# Delete the cropped surface and its Context
 		del cropped_surface
@@ -85,13 +93,32 @@ class ExtendedSurface():
 			image_format (cairo.FORMAT) -- Pixel image_format for output surface
 				(default cairo.FORMAT_ARGB32).
 		"""
+		# Make sure the format is okay
 		assert image_format in (cairo.FORMAT_RGB24, cairo.FORMAT_ARGB32),\
 			f"Unsupported pixel image_format: '{image_format}'"
+
+		# If there's no alpha channel, add in an opaque one
 		if 'A' not in image.getbands():
 			image.putalpha(int(alpha * 256.))
+
+		# Convert the PIL.Image object into a bytearray
 		arr = bytearray(image.tobytes('raw', 'BGRa'))
+
+		# Delete our old class attributes
+		del self.surface
+		del self.context
+		del self.text
+		del self.draw
+
+		# Convert the Image bytearray into a new ImageSurface
 		self.surface = cairo.ImageSurface.create_for_data(
 			arr, image_format, image.width, image.height)
+
+		# With the new ImageSurface object, we need to repoint our other
+		# attributes at it
+		self.context = cairo.Context(self.surface)
+		self.text = TextSurface(self)
+		self.draw = DrawSurface(self)
 
 	def get_format(self):
 		"""Return the ImageSurface attribute's format."""
@@ -171,7 +198,8 @@ class ExtendedSurface():
 		(e.g., 2.0, 1.5).
 
 		The pasted image can also be rotated clockwise in radians (where
-		2*pi is one full rotation).
+		2*pi is one full rotation). The rotation happens about the top-left
+		corner (i.e., the (x, y)-coordinate).
 
 		Keyword arguments:
 			origin (cairo.ImageSurface/ExtendedSurface) -- the
