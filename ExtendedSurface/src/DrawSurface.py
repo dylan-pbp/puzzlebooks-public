@@ -58,10 +58,6 @@ class DrawSurface():
 			calling_surface (ExtendedSurface) -- the surface to be drawn onto.
 
 		Class attributes:
-			x (int) -- the x-coordinate of the polygon.
-			y (int) -- the y-coordinate of the polygon.
-			width (int) -- the width of the polygon.
-			height (int) -- the height of the polygon.
 			color (4-tuple) -- the RGBA color of the polygon.
 			fill (bool) -- whether or not the polygon is filled with color.
 			line_cap (str) -- the pycairo rendering of the endpoint of a line.
@@ -73,16 +69,10 @@ class DrawSurface():
 		self.calling_surface = calling_surface
 		self.context = self.calling_surface.context
 
-		#x = None
-		#y = None
-		#width = None
-		#height = None
-
 		self.color = None
 		self.fill = None
 		self.line_cap = None
 		self.line_join = None
-		self.line_width = None
 		self.outline = None
 		self.outline_color = None
 
@@ -104,7 +94,7 @@ class DrawSurface():
 			outline_color (3- or 4-tuple) -- the RGB(A) color of the
 				dot's outline (default 'color').
 		"""
-		# Grab the essential attributes
+		# Establish parameters not sent in
 		width = radius * 2
 		height = radius * 2
 
@@ -175,7 +165,8 @@ class DrawSurface():
 		# Initialize the shape's attributes
 		self.init_attributes(**kwargs)
 
-		# Grab the starting point
+		# Establish parameters not sent in. In this case we don't need these
+		# affecting anything, so we're setting them all to 0.
 		width = 0
 		height = 0
 		self.outline = 0
@@ -184,7 +175,7 @@ class DrawSurface():
 		x1, y1 = self._adjust_params(x1, y1, width, height)[0:2]
 		x2, y2 = self._adjust_params(x2, y2, width, height)[0:2]
 
-		# Draw a line
+		# Draw the line
 		self.context.move_to(x1, y1)
 		self.context.line_to(x2, y2)
 		self.context.stroke()
@@ -212,11 +203,10 @@ class DrawSurface():
 				polygon's outline (default 'color').
 		"""
 		# Parse each set of points
-		#self.outline = 0
 		for i, (x, y) in enumerate(points):
 			points[i] = (self._parse_x(x, 0), self._parse_y(y, 0))
 
-		# Trace a line for each edge of the shape.
+		# Trace a line for each edge of the shape
 		self.context.move_to(points[0][0], points[0][1])
 		for x, y in points[1:]:
 			self.context.line_to(x, y)
@@ -242,7 +232,7 @@ class DrawSurface():
 			outline_color (3- or 4-tuple) -- the RGB(A) color of the
 				rectangle's outline (default 'color').
 		"""
-		# Determine the x and y coordinates based on other attributes
+		# Parse and adjust the parameters sent in
 		x, y, width, height = self._adjust_params(x, y, width, height)
 
 		# Draw the rectangle
@@ -270,7 +260,7 @@ class DrawSurface():
 			outline_color (3- or 4-tuple) -- the RGB(A) color of the
 				rounded rectangle's outline (default 'color').
 		"""
-		# Parse the x and y coordinates, if need be
+		# Parse and adjust the parameters sent in
 		x, y, width, height = self._adjust_params(x, y, width, height)
 
 		# (x, y)-coordinates of the four corners.
@@ -313,6 +303,7 @@ class DrawSurface():
 		width -= self.outline
 		height -= self.outline
 
+		# Parse the x- and y-coordinates
 		x = self._parse_x(x, width)
 		y = self._parse_y(y, height)
 
@@ -333,6 +324,8 @@ class DrawSurface():
 				(default cairo.LINE_CAP_SQUARE).
 			line_join(cairo.LINE_JOIN) -- the rendering between two
 				joining lines (default cairo.LINE_JOIN_MITER).
+			line_width (int) -- the thickness of a line, in pixels 
+				(default 1).
 			outline (int) -- the thickness of the polygon's outline,
 				in pixels (default 1).
 			outline_color (3- or 4-tuple) -- the RGB(A) color of the
