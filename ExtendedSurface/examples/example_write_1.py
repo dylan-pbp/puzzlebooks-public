@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Example of text written with the default parameters."""
-
 from src.ExtendedSurface import ExtendedSurface
 
 # Create the ExtendedSurface object and set the background to white

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Examples of text written with typical parameters sent in."""
-
 from src.ExtendedSurface import ExtendedSurface
 
 # Create the ExtendedSurface object and set the background to white
@@ -9,11 +8,13 @@ es.set_background()
 
 # Write left-aligned text in the top-left quadrant
 x, y = "left", "top"
+text = ("This text has the default alignment (left) and is bound by the "
+		"parameters max_width and max_height to be contained to this quadrant "
+		"of the page. It has the line spacing set to 2.0, but the font size "
+		"isn't specified so this text will fill up as much space as it's "
+		"allowed.")
 bb_width, bb_height = es.text.write(
-	("This text has the default alignment (left) and is bound by the "
-	 "parameters max_width and max_height to be contained to this quadrant of "
-	 "the page. It has the line spacing set to 2.0, but the font size isn't "
-	 "specified so this text will fill up as much space as it's allowed."),
+	text,
 	x, y,
 	font="arial.ttf",
 	line_spacing=2.0,
@@ -24,9 +25,10 @@ es.draw.rectangle(x, y, bb_width, bb_height, fill=False)
 
 # Write right-aligned text in the top-right quadrant with a font size of 25 pts
 x, y = "right", "top"
+text = ("This text is right-aligned. Its font size is set to 25 pts so it "
+		"will not automatically adjust, even if the text goes off the page.")
 bb_width, bb_height = es.text.write(
-	("This text is right-aligned. Its font size is set to 25 pts so it will "
-	 "not automatically adjust, even if the text goes off the page."),
+	text,
 	x, y,
 	font="arial.ttf",
 	font_size=25,
@@ -40,14 +42,16 @@ es.draw.rectangle(x, y, bb_width, bb_height, fill=False)
 # font and padding on all sides
 text_buffer = 15
 x, y = text_buffer, es.get_height()/2 + text_buffer
+text = ("Here is some center-aligned text. This text is blue, in a different "
+		"font, and has padding on all sides\n"
+		"(top:10, right:20, bottom:30, left:40).\n"
+		"\n"
+		"The boxes drawn around all the examples represent the bounding boxes "
+		"containing the text and padding. The width and height of a bounding "
+		"box are returned and can be used to draw bounding boxes or "
+		"dynamically stack text blocks, like in the example to the right.")
 bb_width, bb_height = es.text.write(
-	("Here is some center-aligned text. This text is blue, in a different "
-	 "font, and has padding on all sides\n"
-	 "(top:10, right:20, bottom:30, left:40).\n\n"
-	 "The boxes drawn around all the examples represent the bounding boxes "
-	 "containing the text and padding. The width and height of a bounding "
-	 "box are returned and can be used to draw bounding boxes or dynamically "
-	 "stack text blocks, like in the example to the right."),
+	text,
 	x, y,
 	font="Boogaloo-Regular.otf",
 	max_width=es.get_width()/2 - 2*text_buffer,

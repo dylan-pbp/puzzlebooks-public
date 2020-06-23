@@ -324,7 +324,7 @@ class DrawSurface():
 				(default cairo.LINE_CAP_SQUARE).
 			line_join(cairo.LINE_JOIN) -- the rendering between two
 				joining lines (default cairo.LINE_JOIN_MITER).
-			line_width (int) -- the thickness of a line, in pixels 
+			line_width (int) -- the thickness of a line, in pixels
 				(default 1).
 			outline (int) -- the thickness of the polygon's outline,
 				in pixels (default 1).

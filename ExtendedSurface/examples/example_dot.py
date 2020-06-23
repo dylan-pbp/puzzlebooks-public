@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Examples of various ways to draw a dot."""
-
 from src.ExtendedSurface import ExtendedSurface
 
 # Create the ExtendedSurface object and set the background to white
