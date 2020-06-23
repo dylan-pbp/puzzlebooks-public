@@ -642,6 +642,10 @@ class TextSurface():
 			if isinstance(x, (float, int)):
 				self.max_width -= x
 
+		# If a value was sent in, adjust it based on the padding
+		else:
+			self.max_width -= (self.padding["left"] + self.padding["right"])
+
 		# Check if the box height is set to "fill". If it is, then set it to
 		# the height of the page, minus the y-placement
 		if self.max_height == "fill":
@@ -655,6 +659,10 @@ class TextSurface():
 			# If we specify a numerical y-position, take that into account
 			if isinstance(y, (float, int)):
 				self.max_height -= y
+
+		# If a value was sent in, adjust it based on the padding
+		else:
+			self.max_height -= (self.padding["top"] + self.padding["bottom"])
 
 		# Reduce the max dimensions by the outline width as well, since the
 		# outline straddles the edge of the text on all sides
@@ -774,11 +782,19 @@ class TextSurface():
 				for word in line.split():
 					no_spaces_width += self._get_text_dimensions([word])[0]
 
-				# If we're before the last line, or on the last line and
-				# we want to justify it, then calculate the new line width
-				# based on the entire width of our text space.
-				if index < len(self.text_lines) - 1 or self.justify_last_line:
-					line_width = self.text_width - self.outline
+				# Set the line width to be the whole line, accounting for the
+				# outline
+				line_width = self.text_width - self.outline
+
+				# If we're at the last line of our text, or at the last line
+				# in a paragraph, and we don't want to justify it, set the line
+				# width back to what it was
+				if ((index == len(self.text_lines) - 1
+						or (index < len(self.text_lines) - 1
+							and len(self.text_lines[index+1]) == 0)
+						)
+						and not self.justify_last_line):
+					line_width = self.text_lines_metadata[index][0]
 
 				# Divide the difference in widths by the number of spaces to
 				# get the new space width. If there's only one word on the
