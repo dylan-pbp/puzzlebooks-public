@@ -1,13 +1,14 @@
 # ExtendedSurface
 
-The ExtendedSurface class is intended to extend the functionality of pycairo's ImageSurface class, providing methods that can do in one line what might take several lines to do.
+The ExtendedSurface class is intended to replace the need for a pycairo.ImageSurface object, extending its functionality by providing methods that can do in one line what might take several lines to do.
 
 ## Basic Functionality
 ExtendedSurface depends on pycairo and Pillow:
 ```
 python3 -m pip install --user pycairo Pillow
 ```
-You can also read more detailed installation instructions [here](https://pycairo.readthedocs.io/en/latest/getting_started.html) and [here](https://pillow.readthedocs.io/en/stable/installation.html)
+You can read more detailed installation instructions [here](https://pycairo.readthedocs.io/en/latest/getting_started.html) and [here](https://pillow.readthedocs.io/en/stable/installation.html).
+
 From the ExtendedSurface root folder, open a terminal and start up the Python Interpreter:
 ```
 python3
@@ -16,7 +17,7 @@ Import the ExtendedSurface module:
 ```
 from src.ExtendedSurface import ExtendedSurface
 ```
-The ExtendedSurface module is intended to replace the need for a pycairo.ImageSurface object. Initialize one by sending in the width and height (in pixels), with optional image_format parameter (the default is cairo.FORMAT_ARGB32):
+Initialize an ExtendedSurface object by sending in its width and height (in pixels), along with optional image_format parameter (default cairo.FORMAT_ARGB32):
 ```
 es = ExtendedSurface(600, 800)
 ```

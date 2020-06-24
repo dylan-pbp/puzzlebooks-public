@@ -4,6 +4,7 @@ cleaner vector drawing, text writing, and image manipulation.
 """
 import cairo
 import numpy
+
 from PIL import Image
 
 from .DrawSurface import DrawSurface
