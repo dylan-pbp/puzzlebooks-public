@@ -1,4 +1,4 @@
-# PuzzleBooks Press Inc. Public Code Repository
+# PuzzleBooks Press Inc. Public Code
 
 This repository has code created by PuzzleBooks Press Inc. that I thought might be of interest to the general public. This code is free to use, copy, modify, etc.
 
