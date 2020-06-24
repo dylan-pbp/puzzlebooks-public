@@ -41,7 +41,7 @@ def polygon_wrapper(func):
 		self.calling_surface.set_color(self.outline_color)
 		self.context.stroke()
 
-		# Restre the Context now that the polygon is drawn
+		# Restore the Context now that the polygon is drawn
 		self.context.restore()
 
 		return result
@@ -94,22 +94,21 @@ class DrawSurface():
 			outline_color (3- or 4-tuple) -- the RGB(A) color of the
 				dot's outline (default 'color').
 		"""
-		# Establish parameters not sent in
-		width = radius * 2
-		height = radius * 2
+		# Calculate the width and height of the inner section of the dot
+		width = radius * 2 - self.outline
+		height = radius * 2 - self.outline
 
-		# Determine the x and y coordinates based on other attributes.
-		# NOTE: This sets the attributes based on the top-left corner of a
-		# bounding box containing the dot.
-		x, y, width, height = self._adjust_params(x, y, width, height)
+		# Parse the x- and y-coordinates if they were sent in as strings.
+		# The parsing methods return the top-left corner of the bounding box,
+		# so we have to move the coordinates back to the center of the dot.
+		if isinstance(x, str):
+			x = self._parse_x(x, width) + width/2
+		if isinstance(y, str):
+			y = self._parse_y(y, height) + height/2
 
 		# Draw the dot by moving to the center and drawing a circle with the
 		# given radius, accounting for the width of the outline.
-		self.context.arc(
-			x + width/2, y + height/2,
-			radius - self.outline/2,
-			0, 2 * math.pi
-			)
+		self.context.arc(x, y, radius - self.outline/2, 0, 2 * math.pi)
 
 	@polygon_wrapper
 	def ellipse(self, x, y, width, height, **kwargs):

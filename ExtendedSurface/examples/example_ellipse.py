@@ -13,7 +13,7 @@ es.draw.ellipse(50, 50, 100, 200)
 es.draw.ellipse("left", 650, width=200, height=100, color=(0, 0, 255))
 
 # Draw an empty ellipse at (200, "top") measuring 200x250 pixels
-es.draw.ellipse(200, "top", 200, 250, fill=False)
+es.draw.ellipse(200, "top", 200, 250, fill=False, outline=20)
 
 # Draw a pink ellipse at ("right", "bottom") that fills in the entire
 # bottom-right quadrant with a purple outline that is 20 pixels thick
