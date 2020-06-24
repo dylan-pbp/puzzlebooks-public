@@ -18,7 +18,7 @@ es.text.write("Hello World!", "center", "center", "arial.ttf", font_size=25)
 es.write_to_png("image.png")
 ```
 
-# How To Run Examples
+## Examples
 From the ExtendedSurface root folder:
 ```
 python3 -m examples.example_*
